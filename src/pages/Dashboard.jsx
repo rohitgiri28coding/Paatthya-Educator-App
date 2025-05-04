@@ -117,99 +117,117 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="layout">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Manage Batches</h1>
+      <div className="container py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="heading-primary">Manage Batches</h1>
           <button 
             onClick={() => setIsAddModalOpen(true)} 
-            className="btn btn-primary"
+            className="btn btn-primary flex items-center"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
             Add New Batch
           </button>
         </div>
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6">
+            <p className="font-medium">Error</p>
+            <p>{error}</p>
           </div>
         )}
         
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex justify-center py-16">
+            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : batches.length === 0 ? (
-          <div className="bg-white shadow rounded-lg p-12 text-center">
-            <p className="text-gray-500">No batches found. Create your first batch!</p>
+          <div className="card text-center py-16">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <p className="text-gray-500 text-lg">No batches found. Create your first batch!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {batches.map(batch => (
-              <div key={batch.id} className="bg-white shadow rounded-lg overflow-hidden">
+              <div key={batch.id} className="card hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full">
                 {batch.imgUrl && (
-                  <div className="relative">
+                  <div className="relative -mx-6 -mt-6 mb-4">
                     <img 
                       src={batch.imgUrl} 
                       alt={batch.title || batch.name} 
                       className="w-full h-48 object-cover"
                     />
                     {(batch.limitedTimeDeal || batch.isLimitedDeal) && (
-                      <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                      <div className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                         Limited Time Deal
                       </div>
                     )}
                   </div>
                 )}
-                <div className="p-6">
-                  <h2 className="font-bold text-xl mb-2">{batch.title || batch.name}</h2>
+                <div className="flex-1">
+                  <h2 className="heading-secondary mb-3">{batch.title || batch.name}</h2>
                   
                   {batch.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                       {batch.description}
                     </p>
                   )}
                   
-                  <div className="flex flex-col space-y-1 mb-4 text-sm text-gray-600">
+                  <div className="flex flex-col space-y-2 mb-4 text-sm text-gray-600">
                     {batch.startDate && (
                       <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                         <span className="font-medium mr-1">Start:</span> 
                         {formatDate(batch.startDate)}
                       </div>
                     )}
                     {batch.courseCompletionDate && (
                       <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
                         <span className="font-medium mr-1">End:</span> 
                         {formatDate(batch.courseCompletionDate)}
                       </div>
                     )}
                   </div>
-                  
+                </div>
+                
+                <div className="mt-auto pt-4">
                   <div className="flex items-center mb-4">
-                    <span className="text-gray-900 font-bold text-lg">₹{batch.price}</span>
+                    <span className="text-gray-900 font-bold text-xl">₹{batch.price}</span>
                     {batch.mrp > batch.price && (
                       <>
                         <span className="text-gray-500 text-sm line-through ml-2">₹{batch.mrp}</span>
-                        <span className="text-green-500 text-sm ml-2">
+                        <span className="text-green-600 text-sm font-medium ml-2">
                           {Math.round(((batch.mrp - batch.price) / batch.mrp) * 100)}% off
                         </span>
                       </>
                     )}
                   </div>
-                  <div className="flex justify-between mt-4">
-                    <button 
+                  
+                  <div className="flex space-x-2">
+                    <button
                       onClick={() => handleViewBatch(batch.id)}
-                      className="btn btn-primary text-sm"
+                      className="btn btn-primary flex-1"
                     >
                       View Details
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDeleteBatch(batch.id)}
-                      className="btn btn-danger text-sm"
+                      className="btn btn-danger"
                     >
-                      Delete
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
                     </button>
                   </div>
                 </div>

@@ -323,154 +323,163 @@ function Notices() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="layout">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Communication Hub</h1>
-          
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setActiveTab('notices')}
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === 'notices'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-800'
-              }`}
+          <h1 className="heading-primary">Communication Center</h1>
+          {activeTab === 'notices' && (
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="btn btn-primary flex items-center"
             >
-              Notices
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              Create Notice
             </button>
-            <button
-              onClick={() => setActiveTab('messages')}
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === 'messages'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-800'
-              }`}
-            >
-              Messages
-            </button>
-
-            {activeTab === 'notices' && (
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="ml-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                Create Notice
-              </button>
-            )}
-          </div>
+          )}
         </div>
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
+            <p className="font-medium">Error</p>
+            <p>{error}</p>
           </div>
         )}
-        
+
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-6">
+          <div className="flex -mb-px">
+            <button
+              className={`mr-8 py-4 text-sm font-medium border-b-2 transition-colors duration-200 ${
+                activeTab === 'notices'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+              onClick={() => setActiveTab('notices')}
+            >
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                </svg>
+                Notices
+              </div>
+            </button>
+            <button
+              className={`py-4 text-sm font-medium border-b-2 transition-colors duration-200 ${
+                activeTab === 'messages'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+              onClick={() => setActiveTab('messages')}
+            >
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                Messages
+              </div>
+            </button>
+          </div>
+        </div>
+
         {renderContent()}
       </div>
-
+      
       {/* Create Notice Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold">Create New Notice</h3>
-                <button 
-                  className="text-gray-500 hover:text-gray-700"
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="card max-w-xl w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Create New Notice</h2>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleCreateNotice}>
+              <div className="mb-4">
+                <label htmlFor="noticeTitle" className="block text-gray-700 text-sm font-medium mb-2">
+                  Title*
+                </label>
+                <input
+                  id="noticeTitle"
+                  type="text"
+                  className="input w-full"
+                  placeholder="Enter notice title"
+                  value={newNotice.title}
+                  onChange={(e) => setNewNotice({...newNotice, title: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="noticeDescription" className="block text-gray-700 text-sm font-medium mb-2">
+                  Description*
+                </label>
+                <textarea
+                  id="noticeDescription"
+                  className="input w-full"
+                  rows="4"
+                  placeholder="Enter notice description"
+                  value={newNotice.description}
+                  onChange={(e) => setNewNotice({...newNotice, description: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="noticeFileUrl" className="block text-gray-700 text-sm font-medium mb-2">
+                  File URL (optional)
+                </label>
+                <input
+                  id="noticeFileUrl"
+                  type="text"
+                  className="input w-full"
+                  placeholder="Enter URL for attachment"
+                  value={newNotice.fileUrl}
+                  onChange={(e) => setNewNotice({...newNotice, fileUrl: e.target.value})}
+                />
+              </div>
+
+              <div className="mb-6">
+                <label htmlFor="noticeFileType" className="block text-gray-700 text-sm font-medium mb-2">
+                  File Type (optional)
+                </label>
+                <select
+                  id="noticeFileType"
+                  className="input w-full"
+                  value={newNotice.fileType}
+                  onChange={(e) => setNewNotice({...newNotice, fileType: e.target.value})}
+                >
+                  <option value="">Select file type</option>
+                  <option value="pdf">PDF</option>
+                  <option value="doc">Word Document</option>
+                  <option value="xls">Excel Spreadsheet</option>
+                  <option value="ppt">PowerPoint</option>
+                  <option value="jpg">Image</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={() => setIsCreateModalOpen(false)}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                >
+                  Create Notice
                 </button>
               </div>
-              
-              <form onSubmit={handleCreateNotice}>
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
-                    Title
-                  </label>
-                  <input
-                    id="title"
-                    type="text"
-                    className="w-full p-2 border rounded-lg"
-                    placeholder="Notice title"
-                    value={newNotice.title}
-                    onChange={(e) => setNewNotice(prev => ({ ...prev, title: e.target.value }))}
-                    required
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    className="w-full p-2 border rounded-lg"
-                    rows="4"
-                    placeholder="Notice description"
-                    value={newNotice.description}
-                    onChange={(e) => setNewNotice(prev => ({ ...prev, description: e.target.value }))}
-                    required
-                  ></textarea>
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fileUrl">
-                    File URL (Optional)
-                  </label>
-                  <input
-                    id="fileUrl"
-                    type="text"
-                    className="w-full p-2 border rounded-lg"
-                    placeholder="https://example.com/file.pdf"
-                    value={newNotice.fileUrl}
-                    onChange={(e) => setNewNotice(prev => ({ ...prev, fileUrl: e.target.value }))}
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fileType">
-                    File Type (Optional)
-                  </label>
-                  <select
-                    id="fileType"
-                    className="w-full p-2 border rounded-lg"
-                    value={newNotice.fileType}
-                    onChange={(e) => setNewNotice(prev => ({ ...prev, fileType: e.target.value }))}
-                  >
-                    <option value="">Select file type</option>
-                    <option value="pdf">PDF</option>
-                    <option value="doc">DOC/DOCX</option>
-                    <option value="xls">XLS/XLSX</option>
-                    <option value="ppt">PPT/PPTX</option>
-                    <option value="jpg">JPG/JPEG</option>
-                    <option value="png">PNG</option>
-                  </select>
-                </div>
-                
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-gray-700 border rounded-lg"
-                    onClick={() => setIsCreateModalOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                  >
-                    Create Notice
-                  </button>
-                </div>
-              </form>
-            </div>
+            </form>
           </div>
         </div>
       )}

@@ -440,15 +440,18 @@ function BatchDetails() {
     if (loading) {
       return (
         <div className="flex justify-center py-12">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )
     }
     
     if (materials.length === 0) {
       return (
-        <div className="bg-white shadow rounded-lg p-12 text-center">
-          <p className="text-gray-500">No {activeTab} found. Add your first one!</p>
+        <div className="card text-center py-12">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <p className="text-gray-500 text-lg">No {activeTab} found. Add your first one!</p>
         </div>
       )
     }
@@ -456,27 +459,8 @@ function BatchDetails() {
     if (activeTab === 'lectures') {
       return (
         <div className="space-y-4">
-          {activeVideoUrl && (
-            <div className="bg-black rounded-lg overflow-hidden mb-6 shadow-lg">
-              <div className="relative" style={{ paddingBottom: '56.25%', height: 0 }}>
-                <iframe 
-                  src={activeVideoUrl} 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen
-                  className="absolute top-0 left-0 w-full h-full"
-                ></iframe>
-              </div>
-              <div className="bg-gray-900 text-white p-3">
-                <h3 className="text-lg font-medium">
-                  {materials.find(m => m.url === activeVideoUrl)?.title || 'Video Player'}
-                </h3>
-              </div>
-            </div>
-          )}
-          
           {materials.map(material => (
-            <div key={material.id} className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-300">
+            <div key={material.id} className="card hover:shadow-md transition-shadow duration-300">
               <div className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-grow pr-4">
@@ -486,7 +470,7 @@ function BatchDetails() {
                     )}
                     {material.createdAt && (
                       <div className="flex items-center text-sm text-gray-500 mt-2">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg className="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span>{formatDate(material.createdAt)}</span>
@@ -496,7 +480,7 @@ function BatchDetails() {
                   <div className="flex flex-col space-y-2">
                     <button
                       onClick={() => handlePlayVideo(material.url, material.isYTVideo)}
-                      className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                      className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
                       title="Play Video"
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -506,7 +490,7 @@ function BatchDetails() {
                     <div className="flex space-x-2 mt-2">
                       <button
                         onClick={() => handleEditModalOpen(material)}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
                         title="Edit"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -515,7 +499,7 @@ function BatchDetails() {
                       </button>
                       <button
                         onClick={() => handleDeleteMaterial(material.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 transition-colors duration-200"
                         title="Delete"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -535,7 +519,7 @@ function BatchDetails() {
       return (
         <div className="space-y-4">
           {materials.map(material => (
-            <div key={material.id} className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-300">
+            <div key={material.id} className="card hover:shadow-md transition-shadow duration-300">
               <div className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-grow pr-4">
@@ -545,7 +529,7 @@ function BatchDetails() {
                     )}
                     
                     <div className="flex items-center text-sm text-gray-500 mt-2">
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span>{formatDate(material.createdAt)}</span>
@@ -556,7 +540,7 @@ function BatchDetails() {
                     {material.url && (
                       <button
                         onClick={() => handleDownload(material)}
-                        className="flex items-center justify-center h-12 w-12 rounded-full bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                        className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-sm"
                         title="Download File"
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -568,7 +552,7 @@ function BatchDetails() {
                     <div className="flex space-x-2 mt-2">
                       <button
                         onClick={() => handleEditModalOpen(material)}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
                         title="Edit"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -577,7 +561,7 @@ function BatchDetails() {
                       </button>
                       <button
                         onClick={() => handleDeleteMaterial(material.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 transition-colors duration-200"
                         title="Delete"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -590,7 +574,7 @@ function BatchDetails() {
                 
                 {material.fileType && (
                   <div className="mt-4 flex items-center">
-                    <span className="text-xs uppercase tracking-wide font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded-full flex items-center">
+                    <span className="text-xs uppercase tracking-wide font-semibold bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-3 py-1 rounded-full flex items-center shadow-sm">
                       {getFileIcon(material.fileType)}
                       <span className="ml-1">{material.fileType}</span>
                     </span>
@@ -605,144 +589,161 @@ function BatchDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="layout">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
-        >
-          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Dashboard
-        </button>
-        
-        {batch && (
-          <div className="mb-8">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-6 flex items-center">
-                {batch.imgUrl && (
-                  <img 
-                    src={batch.imgUrl} 
-                    alt={batch.name} 
-                    className="w-24 h-24 object-cover rounded-lg mr-6 shadow-sm"
-                  />
-                )}
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{batch.name || batch.title}</h1>
-                  <p className="text-gray-600 mt-2">{batch.description}</p>
-                  <div className="flex flex-wrap items-center mt-3">
-                    <div className="flex items-center mr-6 mb-2">
-                      <span className="text-gray-900 font-bold text-xl">₹{batch.price}</span>
-                      {batch.mrp > batch.price && (
-                        <>
-                          <span className="text-gray-500 text-sm line-through ml-2">₹{batch.mrp}</span>
-                          <span className="text-green-500 text-sm font-bold ml-2 bg-green-100 px-2 py-0.5 rounded">
-                            {Math.round(((batch.mrp - batch.price) / batch.mrp) * 100)}% off
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center space-x-4 mb-2">
-                      {batch.startDate && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span>Starts: {formatDate(batch.startDate)}</span>
-                        </div>
-                      )}
-                      
-                      {batch.courseCompletionDate && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>Ends: {formatDate(batch.courseCompletionDate)}</span>
-                        </div>
-                      )}
-                    </div>
+      <div className="container py-8">
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : batch ? (
+          <>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+              <div>
+                <button 
+                  onClick={() => navigate('/dashboard')} 
+                  className="flex items-center text-indigo-600 hover:text-indigo-800 mb-2 transition-colors duration-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                  </svg>
+                  Back to Dashboard
+                </button>
+                <h1 className="heading-primary">{batch.title || batch.name}</h1>
+                <div className="flex items-center text-sm text-gray-600 mt-1">
+                  <div className="flex items-center mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {formatDate(batch.startDate) || 'No start date'}
+                  </div>
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Duration: {batch.courseCompletionDate ? `until ${formatDate(batch.courseCompletionDate)}` : 'Ongoing'}
                   </div>
                 </div>
               </div>
+              <div className="mt-4 md:mt-0 flex items-center">
+                <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 mr-3">₹{batch.price}</span>
+                {batch.mrp > batch.price && (
+                  <span className="text-gray-500 text-sm line-through">₹{batch.mrp}</span>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-        
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-        
-        {/* Tab Navigation */}
-        <div className="bg-white shadow rounded-lg mb-6 overflow-hidden">
-          <nav className="flex">
-            {tabs.map(tab => (
+            
+            {error && (
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
+                <p className="font-medium">Error</p>
+                <p>{error}</p>
+              </div>
+            )}
+            
+            {/* Tab Navigation */}
+            <div className="border-b border-gray-200 mb-6">
+              <div className="flex space-x-8">
+                <button
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                    activeTab === 'lectures'
+                      ? 'border-indigo-500 text-indigo-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  onClick={() => setActiveTab('lectures')}
+                >
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Lectures
+                  </div>
+                </button>
+                <button
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                    activeTab === 'notes'
+                      ? 'border-indigo-500 text-indigo-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  onClick={() => setActiveTab('notes')}
+                >
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Notes
+                  </div>
+                </button>
+                <button
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                    activeTab === 'assignments'
+                      ? 'border-indigo-500 text-indigo-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  onClick={() => setActiveTab('assignments')}
+                >
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Assignments
+                  </div>
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="heading-secondary">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`${
-                  activeTab === tab.id
-                    ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-500'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                } flex-1 py-4 px-6 font-medium text-sm transition-colors duration-200`}
+                onClick={() => setIsAddModalOpen(true)}
+                className="btn btn-primary flex items-center"
               >
-                {tab.id === 'lectures' && (
-                  <svg className="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                )}
-                {tab.id === 'notes' && (
-                  <svg className="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                )}
-                {tab.id === 'assignments' && (
-                  <svg className="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                )}
-                {tab.label}
-                <span className="ml-2 bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 text-xs">
-                  {batch ? batch[tab.id === 'assignments' ? 'assignment' : tab.id]?.length || 0 : 0}
-                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Add {activeTab.slice(0, -1).charAt(0).toUpperCase() + activeTab.slice(0, -1).slice(1)}
               </button>
-            ))}
-          </nav>
-        </div>
-        
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center">
-            <h2 className="text-xl font-semibold text-gray-800">
-              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-            </h2>
-            <div className="ml-2 bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-xs font-medium">
-              {materials.length} {materials.length === 1 ? 'item' : 'items'}
             </div>
+            
+            {/* Video Player */}
+            {activeVideoUrl && activeTab === 'lectures' && (
+              <div className="card p-0 overflow-hidden mb-6 bg-gray-900">
+                <div className="aspect-w-16 aspect-h-9">
+                  <iframe
+                    src={activeVideoUrl}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
+                </div>
+              </div>
+            )}
+            
+            {/* Materials List */}
+            {renderMaterialsList()}
+          </>
+        ) : (
+          <div className="card text-center py-12">
+            <p className="text-red-600">Batch not found or error loading batch details.</p>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="mt-4 btn btn-primary inline-flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Return to Dashboard
+            </button>
           </div>
-          <button 
-            onClick={() => setIsAddModalOpen(true)} 
-            className="btn-primary flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add New {activeTab.slice(0, -1).charAt(0).toUpperCase() + activeTab.slice(0, -1).slice(1)}
-          </button>
-        </div>
-        
-        {renderMaterialsList()}
+        )}
       </div>
       
       {/* Add Material Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="card max-w-md w-full">
+            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">
               Add New {activeTab.slice(0, -1).charAt(0).toUpperCase() + activeTab.slice(0, -1).slice(1)}
             </h2>
             <form onSubmit={handleAddMaterial}>
@@ -823,7 +824,7 @@ function BatchDetails() {
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  className="btn bg-gray-300 hover:bg-gray-400 text-gray-800"
+                  className="btn btn-secondary"
                   onClick={() => setIsAddModalOpen(false)}
                 >
                   Cancel
@@ -842,9 +843,9 @@ function BatchDetails() {
       
       {/* Edit Material Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="card max-w-md w-full">
+            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">
               Edit {activeTab.slice(0, -1).charAt(0).toUpperCase() + activeTab.slice(0, -1).slice(1)}
             </h2>
             <form onSubmit={handleUpdateMaterial}>
@@ -916,7 +917,7 @@ function BatchDetails() {
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  className="btn bg-gray-300 hover:bg-gray-400 text-gray-800"
+                  className="btn btn-secondary"
                   onClick={() => setIsEditModalOpen(false)}
                 >
                   Cancel
