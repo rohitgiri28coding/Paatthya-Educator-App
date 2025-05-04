@@ -459,6 +459,25 @@ function BatchDetails() {
     if (activeTab === 'lectures') {
       return (
         <div className="space-y-4">
+          {activeVideoUrl && (
+            <div className="bg-black rounded-lg overflow-hidden mb-6 shadow-lg">
+              <div className="relative" style={{ paddingBottom: '56.25%', height: 0 }}>
+                <iframe 
+                  src={activeVideoUrl} 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                  className="absolute top-0 left-0 w-full h-full"
+                ></iframe>
+              </div>
+              <div className="bg-gray-900 text-white p-3">
+                <h3 className="text-lg font-medium">
+                  {materials.find(m => m.url === activeVideoUrl || `https://www.youtube.com/embed/${m.url}` === activeVideoUrl)?.title || 'Video Player'}
+                </h3>
+              </div>
+            </div>
+          )}
+          
           {materials.map(material => (
             <div key={material.id} className="card hover:shadow-md transition-shadow duration-300">
               <div className="p-6">
@@ -704,21 +723,6 @@ function BatchDetails() {
                 Add {activeTab.slice(0, -1).charAt(0).toUpperCase() + activeTab.slice(0, -1).slice(1)}
               </button>
             </div>
-            
-            {/* Video Player */}
-            {activeVideoUrl && activeTab === 'lectures' && (
-              <div className="card p-0 overflow-hidden mb-6 bg-gray-900">
-                <div className="aspect-w-16 aspect-h-9">
-                  <iframe
-                    src={activeVideoUrl}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  ></iframe>
-                </div>
-              </div>
-            )}
             
             {/* Materials List */}
             {renderMaterialsList()}
