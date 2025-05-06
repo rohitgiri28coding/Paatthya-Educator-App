@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/firebase'
-import Navbar from '../components/Navbar'
 
 function BatchDetails() {
   const { batchId } = useParams()
@@ -13,6 +12,7 @@ function BatchDetails() {
   const [loading, setLoading] = useState(true)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isEditBatchModalOpen, setIsEditBatchModalOpen] = useState(false)
   const [activeVideoUrl, setActiveVideoUrl] = useState(null)
   const [newMaterial, setNewMaterial] = useState({
     title: '',
@@ -26,6 +26,14 @@ function BatchDetails() {
     description: '',
     url: '',
     fileType: ''
+  })
+  const [editBatchDetails, setEditBatchDetails] = useState({
+    name: '',
+    title: '',
+    price: 0,
+    mrp: 0,
+    startDate: '',
+    courseCompletionDate: ''
   })
   const [error, setError] = useState('')
 
@@ -98,7 +106,39 @@ function BatchDetails() {
           batchData.name = batchData.title
         }
         
+        // If dates are in YYYY-MM-DD format, convert to DD/MM/YYYY
+        if (batchData.startDate && batchData.startDate.includes('-')) {
+          const [year, month, day] = batchData.startDate.split('-');
+          if (day && month && year) {
+            batchData.startDate = `${day}/${month}/${year}`;
+          }
+        }
+        
+        if (batchData.courseCompletionDate && batchData.courseCompletionDate.includes('-')) {
+          const [year, month, day] = batchData.courseCompletionDate.split('-');
+          if (day && month && year) {
+            batchData.courseCompletionDate = `${day}/${month}/${year}`;
+          }
+        }
+        
         setBatch(batchData)
+        
+        // Format dates for the form inputs (which need YYYY-MM-DD)
+        const formatToInputDate = (dateStr) => {
+          if (!dateStr || !dateStr.includes('/')) return '';
+          const [day, month, year] = dateStr.split('/');
+          return `${year}-${month}-${day}`;
+        };
+        
+        // Initialize edit batch form with existing data
+        setEditBatchDetails({
+          name: batchData.name || batchData.title || '',
+          title: batchData.title || batchData.name || '',
+          price: batchData.price || 0,
+          mrp: batchData.mrp || 0,
+          startDate: formatToInputDate(batchData.startDate) || '',
+          courseCompletionDate: formatToInputDate(batchData.courseCompletionDate) || ''
+        })
       } else {
         setError('Batch not found')
         navigate('/dashboard')
@@ -415,9 +455,23 @@ function BatchDetails() {
     if (!timestamp) return 'N/A'
     
     try {
+      // First handle if it's a timestamp object from Firestore
       const date = timestamp instanceof Date 
         ? timestamp 
         : new Date(typeof timestamp === 'object' && timestamp.seconds ? timestamp.seconds * 1000 : timestamp)
+      
+      // Check if we have a string and if it might be in dd/mm/yyyy format
+      if (typeof timestamp === 'string' && timestamp.includes('/')) {
+        const parts = timestamp.split('/');
+        if (parts.length === 3) {
+          // Handle dd/mm/yyyy format
+          return new Date(`${parts[1]}/${parts[0]}/${parts[2]}`).toLocaleDateString('en-IN', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric'
+          });
+        }
+      }
         
       return date.toLocaleDateString('en-IN', { 
         day: 'numeric', 
@@ -607,11 +661,104 @@ function BatchDetails() {
     }
   }
 
+  const handleEditBatchOpen = () => {
+    // Convert date from DD/MM/YYYY to YYYY-MM-DD for HTML date input
+    const formatToInputDate = (dateStr) => {
+      if (!dateStr || !dateStr.includes('/')) return '';
+      const [day, month, year] = dateStr.split('/');
+      return `${year}-${month}-${day}`;
+    };
+    
+    setEditBatchDetails({
+      name: batch.name || batch.title || '',
+      title: batch.title || batch.name || '',
+      price: batch.price || 0,
+      mrp: batch.mrp || 0,
+      startDate: formatToInputDate(batch.startDate) || '',
+      courseCompletionDate: formatToInputDate(batch.courseCompletionDate) || ''
+    })
+    setIsEditBatchModalOpen(true)
+  }
+
+  const handleUpdateBatch = async (e) => {
+    e.preventDefault()
+    if (!editBatchDetails.name.trim()) {
+      setError('Batch name cannot be empty')
+      return
+    }
+    
+    try {
+      // Format dates from YYYY-MM-DD to DD/MM/YYYY
+      const formatToDisplayDate = (dateStr) => {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+      };
+
+      const formattedStartDate = formatToDisplayDate(editBatchDetails.startDate);
+      const formattedCompletionDate = formatToDisplayDate(editBatchDetails.courseCompletionDate);
+
+      // Update the batch in Firestore
+      const batchRef = doc(db, 'batches', batchId)
+      await updateDoc(batchRef, {
+        name: editBatchDetails.name.trim(),
+        title: editBatchDetails.title.trim() || editBatchDetails.name.trim(),
+        price: Number(editBatchDetails.price),
+        mrp: Number(editBatchDetails.mrp),
+        startDate: formattedStartDate,
+        courseCompletionDate: formattedCompletionDate
+      })
+      
+      // Update local state
+      const updatedBatch = {
+        ...batch,
+        name: editBatchDetails.name.trim(),
+        title: editBatchDetails.title.trim() || editBatchDetails.name.trim(),
+        price: Number(editBatchDetails.price),
+        mrp: Number(editBatchDetails.mrp),
+        startDate: formattedStartDate,
+        courseCompletionDate: formattedCompletionDate
+      }
+      setBatch(updatedBatch)
+      
+      setIsEditBatchModalOpen(false)
+      setError('')
+    } catch (error) {
+      console.error('Error updating batch:', error)
+      setError('Failed to update batch details')
+    }
+  }
+
   return (
     <div className="layout">
-      <Navbar />
-      
       <div className="container py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <nav className="flex" aria-label="Breadcrumb">
+            <ol className="inline-flex items-center space-x-1 md:space-x-3">
+              <li className="inline-flex items-center">
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  Dashboard
+                </button>
+              </li>
+              <li aria-current="page">
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">{batch?.title || 'Batch Details'}</span>
+                </div>
+              </li>
+            </ol>
+          </nav>
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-16">
             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
@@ -629,7 +776,18 @@ function BatchDetails() {
                   </svg>
                   Back to Dashboard
                 </button>
-                <h1 className="heading-primary">{batch.title || batch.name}</h1>
+                <div className="flex items-center">
+                  <h1 className="heading-primary">{batch.title || batch.name}</h1>
+                  <button
+                    onClick={handleEditBatchOpen}
+                    className="ml-3 text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+                    title="Edit Batch Details"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                </div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
                   <div className="flex items-center mr-4">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -931,6 +1089,128 @@ function BatchDetails() {
                   className="btn btn-primary"
                 >
                   Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Batch Modal */}
+      {isEditBatchModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="card max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                Edit Batch Details
+              </h2>
+              <button onClick={() => setIsEditBatchModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleUpdateBatch}>
+              <div className="mb-4">
+                <label htmlFor="batch-name" className="block text-gray-700 text-sm font-medium mb-2">
+                  Batch Name*
+                </label>
+                <input
+                  id="batch-name"
+                  type="text"
+                  className="input w-full"
+                  placeholder="Enter batch name"
+                  value={editBatchDetails.name}
+                  onChange={(e) => setEditBatchDetails({...editBatchDetails, name: e.target.value})}
+                  required
+                />
+              </div>
+              
+              <div className="mb-4">
+                <label htmlFor="batch-title" className="block text-gray-700 text-sm font-medium mb-2">
+                  Batch Title (Optional)
+                </label>
+                <input
+                  id="batch-title"
+                  type="text"
+                  className="input w-full"
+                  placeholder="Enter batch title"
+                  value={editBatchDetails.title}
+                  onChange={(e) => setEditBatchDetails({...editBatchDetails, title: e.target.value})}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label htmlFor="batch-price" className="block text-gray-700 text-sm font-medium mb-2">
+                    Price (₹)
+                  </label>
+                  <input
+                    id="batch-price"
+                    type="number"
+                    className="input w-full"
+                    placeholder="Enter price"
+                    value={editBatchDetails.price}
+                    onChange={(e) => setEditBatchDetails({...editBatchDetails, price: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="batch-mrp" className="block text-gray-700 text-sm font-medium mb-2">
+                    MRP (₹)
+                  </label>
+                  <input
+                    id="batch-mrp"
+                    type="number"
+                    className="input w-full"
+                    placeholder="Enter MRP"
+                    value={editBatchDetails.mrp}
+                    onChange={(e) => setEditBatchDetails({...editBatchDetails, mrp: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label htmlFor="batch-start-date" className="block text-gray-700 text-sm font-medium mb-2">
+                    Start Date
+                  </label>
+                  <input
+                    id="batch-start-date"
+                    type="date"
+                    className="input w-full"
+                    value={editBatchDetails.startDate}
+                    onChange={(e) => setEditBatchDetails({...editBatchDetails, startDate: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="batch-end-date" className="block text-gray-700 text-sm font-medium mb-2">
+                    Completion Date
+                  </label>
+                  <input
+                    id="batch-end-date"
+                    type="date"
+                    className="input w-full"
+                    value={editBatchDetails.courseCompletionDate}
+                    onChange={(e) => setEditBatchDetails({...editBatchDetails, courseCompletionDate: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsEditBatchModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                >
+                  Update Batch
                 </button>
               </div>
             </form>

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore'
 import { db } from '../firebase/firebase'
-import Navbar from '../components/Navbar'
 
 function Dashboard() {
   const [batches, setBatches] = useState([])
@@ -105,21 +104,36 @@ function Dashboard() {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
-      const date = new Date(dateString);
+      // Parse the date string considering it's in dd/mm/yyyy format
+      const parts = dateString.split('/');
+      let date;
+      
+      if (parts.length === 3) {
+        // Handle dd/mm/yyyy format by rearranging to mm/dd/yyyy for the Date constructor
+        date = new Date(`${parts[1]}/${parts[0]}/${parts[2]}`);
+      } else {
+        // Fall back to regular date parsing if it's not in the expected format
+        date = new Date(dateString);
+      }
+      
+      if (isNaN(date.getTime())) {
+        // If the date is invalid, return the original string
+        return dateString;
+      }
+
       return date.toLocaleDateString('en-IN', { 
         day: 'numeric', 
         month: 'short', 
         year: 'numeric' 
       });
     } catch (error) {
+      console.error('Date parsing error:', error);
       return dateString;
     }
   }
 
   return (
     <div className="layout">
-      <Navbar />
-      
       <div className="container py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="heading-primary">Manage Batches</h1>

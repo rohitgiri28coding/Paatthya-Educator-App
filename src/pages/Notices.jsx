@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { collection, getDocs, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy, addDoc, serverTimestamp, 
+  doc, deleteDoc, updateDoc, where } from 'firebase/firestore'
 import { db, auth } from '../firebase/firebase'
-import Navbar from '../components/Navbar'
 
 function Notices() {
   const [notices, setNotices] = useState([])
@@ -18,6 +18,9 @@ function Notices() {
     fileUrl: '',
     fileType: ''
   })
+  const [adminData, setAdminData] = useState(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingNotice, setEditingNotice] = useState(null)
 
   useEffect(() => {
     if (activeTab === 'notices') {
@@ -31,6 +34,28 @@ function Notices() {
     // Scroll to bottom of messages
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    // Fetch admin data upon component mount
+    fetchAdminData()
+  }, [])
+
+  const fetchAdminData = () => {
+    try {
+      // Get admin data from session storage
+      const adminDataString = sessionStorage.getItem('currentAdmin')
+      
+      if (adminDataString) {
+        const admin = JSON.parse(adminDataString)
+        setAdminData(admin)
+        console.log('Admin data loaded from session:', admin)
+      } else {
+        console.log('No admin data found in session storage')
+      }
+    } catch (error) {
+      console.error('Error fetching admin data:', error)
+    }
+  }
 
   const fetchNotices = async () => {
     setLoading(true)
@@ -81,10 +106,12 @@ function Notices() {
     
     try {
       const messagesCollection = collection(db, 'messages')
+      
+      // Get admin data from state (set from session storage)
       await addDoc(messagesCollection, {
         text: newMessage.trim(),
-        sender: auth.currentUser?.email || 'Anonymous User',
-        senderUid: auth.currentUser?.uid || 'anonymous',
+        sender: adminData?.name || 'Anonymous User',
+        senderUid: adminData?.id || 'anonymous',
         timestamp: serverTimestamp()
       })
       
@@ -108,8 +135,8 @@ function Notices() {
       const noticesCollection = collection(db, 'notices')
       await addDoc(noticesCollection, {
         ...newNotice,
-        createdBy: auth.currentUser?.email || 'Anonymous User',
-        creatorUid: auth.currentUser?.uid || 'anonymous',
+        createdBy: adminData?.name || 'Anonymous User',
+        creatorUid: adminData?.id || 'anonymous',
         timestamp: serverTimestamp()
       })
       
@@ -124,6 +151,51 @@ function Notices() {
     } catch (error) {
       console.error('Error creating notice:', error)
       setError('Failed to create notice')
+    }
+  }
+
+  const handleEditModalOpen = (notice) => {
+    setEditingNotice(notice)
+    setIsEditModalOpen(true)
+  }
+
+  const handleUpdateNotice = async (e) => {
+    e.preventDefault()
+    
+    if (!editingNotice || !editingNotice.title.trim() || !editingNotice.description.trim()) {
+      setError('Title and description are required')
+      return
+    }
+    
+    try {
+      const noticeRef = doc(db, 'notices', editingNotice.id)
+      await updateDoc(noticeRef, {
+        title: editingNotice.title,
+        description: editingNotice.description,
+        fileUrl: editingNotice.fileUrl || '',
+        fileType: editingNotice.fileType || '',
+        // Don't update timestamp, createdBy, or creatorUid
+      })
+      
+      setIsEditModalOpen(false)
+      setEditingNotice(null)
+      fetchNotices()
+    } catch (error) {
+      console.error('Error updating notice:', error)
+      setError('Failed to update notice')
+    }
+  }
+
+  const handleDeleteNotice = async (noticeId) => {
+    if (window.confirm('Are you sure you want to delete this notice?')) {
+      try {
+        const noticeRef = doc(db, 'notices', noticeId)
+        await deleteDoc(noticeRef)
+        fetchNotices()
+      } catch (error) {
+        console.error('Error deleting notice:', error)
+        setError('Failed to delete notice')
+      }
     }
   }
 
@@ -214,7 +286,30 @@ function Notices() {
           {notices.map(notice => (
             <div key={notice.id} className="bg-white shadow rounded-lg overflow-hidden">
               <div className="p-6">
-                <h2 className="font-bold text-xl mb-2">{notice.title}</h2>
+                <div className="flex justify-between">
+                  <h2 className="font-bold text-xl mb-2">{notice.title}</h2>
+                  
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditModalOpen(notice)}
+                      className="text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+                      title="Edit Notice"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteNotice(notice.id)}
+                      className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                      title="Delete Notice"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
                 
                 <p className="text-gray-700 mb-4">
                   {notice.description}
@@ -225,6 +320,8 @@ function Notices() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <span>{formatDate(notice.timestamp)}</span>
+                  <span className="mx-2">•</span>
+                  <span>By: {notice.createdBy}</span>
                 </div>
                 
                 {notice.fileUrl && (
@@ -324,8 +421,6 @@ function Notices() {
 
   return (
     <div className="layout">
-      <Navbar />
-      
       <div className="container py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="heading-primary">Communication Center</h1>
@@ -477,6 +572,102 @@ function Notices() {
                   className="btn btn-primary"
                 >
                   Create Notice
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Notice Modal */}
+      {isEditModalOpen && editingNotice && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="card max-w-xl w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Edit Notice</h2>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleUpdateNotice}>
+              <div className="mb-4">
+                <label htmlFor="editNoticeTitle" className="block text-gray-700 text-sm font-medium mb-2">
+                  Title*
+                </label>
+                <input
+                  id="editNoticeTitle"
+                  type="text"
+                  className="input w-full"
+                  placeholder="Enter notice title"
+                  value={editingNotice.title}
+                  onChange={(e) => setEditingNotice({...editingNotice, title: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="editNoticeDescription" className="block text-gray-700 text-sm font-medium mb-2">
+                  Description*
+                </label>
+                <textarea
+                  id="editNoticeDescription"
+                  className="input w-full"
+                  rows="4"
+                  placeholder="Enter notice description"
+                  value={editingNotice.description}
+                  onChange={(e) => setEditingNotice({...editingNotice, description: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="editNoticeFileUrl" className="block text-gray-700 text-sm font-medium mb-2">
+                  File URL (optional)
+                </label>
+                <input
+                  id="editNoticeFileUrl"
+                  type="text"
+                  className="input w-full"
+                  placeholder="Enter URL for attachment"
+                  value={editingNotice.fileUrl || ''}
+                  onChange={(e) => setEditingNotice({...editingNotice, fileUrl: e.target.value})}
+                />
+              </div>
+
+              <div className="mb-6">
+                <label htmlFor="editNoticeFileType" className="block text-gray-700 text-sm font-medium mb-2">
+                  File Type (optional)
+                </label>
+                <select
+                  id="editNoticeFileType"
+                  className="input w-full"
+                  value={editingNotice.fileType || ''}
+                  onChange={(e) => setEditingNotice({...editingNotice, fileType: e.target.value})}
+                >
+                  <option value="">Select file type</option>
+                  <option value="pdf">PDF</option>
+                  <option value="doc">Word Document</option>
+                  <option value="xls">Excel Spreadsheet</option>
+                  <option value="ppt">PowerPoint</option>
+                  <option value="jpg">Image</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                >
+                  Update Notice
                 </button>
               </div>
             </form>
